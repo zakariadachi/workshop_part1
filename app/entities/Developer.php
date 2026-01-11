@@ -1,20 +1,18 @@
 <?php
+declare(strict_types=1);
 
-require_once "/TeamMember.php";
+namespace App\Entities;
 
 class Developer extends TeamMember
 {
-        function canCreateProject():bool
-        {
-            return false;
-        }
-        function canAssignTask():bool
-        {
-            return false;
-        }
-        function getRolePermission()
-        {
-            return ['work_on_tasks'];
-        }
-
+    public function canCreateProject(): bool {
+         return false; 
+    }
+    public function canAssignTasks(): bool {
+         return false; 
+    }
+    public function getRolePermissions(): array 
+    {
+        return ['work_on_tasks', 'view_projects'];
+    }
 }

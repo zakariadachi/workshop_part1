@@ -1,40 +1,54 @@
 <?php
 declare(strict_types=1);
-final class Database
+
+namespace App\Core;
+
+use PDO;
+use PDOException;
+
+class Database
 {
 
-    private static ?PDO $connection = null;
+    private static ?Database $instance = null;
 
-    private function __construct() 
-    {
-    }
+    private ?PDO $connection = null;
 
-    public static function getInstance(): PDO
+    private function __construct()
     {
-        if (self::$connection === null) {
-            $config = require_once __DIR__ . '/config.php';
-            $dsn = "mysql:host=" . $config['host'] . ";dbname=" . $config['dbname'] . ";charset=utf8mb4";
-            
-            try {
-                self::$connection = new PDO(
-                    $dsn,
-                    $config['username'],
-                    $config['password'],
-                    $config['options']
-                );
-            } catch (PDOException $e) {
-                throw new PDOException("Erreur de connexion : " . $e->getMessage());
-            }
-        }
+        $config = require_once __DIR__ . '/config.php';
+        $dsn = "mysql:host=" . $config['host'] . ";dbname=" . $config['dbname'] . ";charset=utf8mb4";
         
-        return self::$connection;
+        try {
+            $this->connection = new PDO(
+                $dsn,
+                $config['username'],
+                $config['password'],
+                $config['options']
+            );
+        } catch (PDOException $e) {
+            throw new PDOException("Database connection failed: " . $e->getMessage());
+        }
     }
 
-    public function __clone()
+    public static function getInstance(): Database
+    {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    public function getConnection(): PDO
+    {
+        return $this->connection;
+    }
+
+    private function __clone()
     {
     }
 
     public function __wakeup()
     {
+        throw new \Exception("Cannot unserialize a singleton.");
     }
 }
